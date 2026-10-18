@@ -77,7 +77,7 @@
                     <input type="text" 
                            id="login" 
                            name="login" 
-                           value="{{ old('login', 'admin') }}" 
+                           value="{{ old('login') }}" 
                            required 
                            autocomplete="username"
                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-hospital-500 focus:border-hospital-500 text-sm font-medium text-slate-800 transition" 
@@ -91,7 +91,6 @@
                     <input type="password" 
                            id="password" 
                            name="password" 
-                           value="12345678"
                            required 
                            autocomplete="current-password"
                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-hospital-500 focus:border-hospital-500 text-sm font-medium text-slate-800 transition" 
@@ -111,24 +110,6 @@
                     <span>دخول النظام الطبي</span>
                 </button>
             </form>
-
-            <!-- Quick Demo Credentials Card -->
-            <div class="mt-6 pt-5 border-t border-slate-100 bg-slate-50/70 -mx-8 -mb-8 p-6 rounded-b-2xl">
-                <div class="flex items-center gap-2 text-xs font-bold text-slate-700 mb-2">
-                    <i class="fa-solid fa-key text-hospital-600"></i>
-                    <span>بيانات اعتماد مدير النظام الافتراضية:</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs text-slate-600">
-                    <div class="bg-white p-2 rounded-lg border border-slate-200">
-                        <span class="text-[10px] text-slate-400 block">المستخدم:</span>
-                        <code class="font-bold text-slate-800">admin</code>
-                    </div>
-                    <div class="bg-white p-2 rounded-lg border border-slate-200">
-                        <span class="text-[10px] text-slate-400 block">كلمة المرور:</span>
-                        <code class="font-bold text-slate-800">12345678</code>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <div class="text-center mt-6 text-xs text-teal-200/60 font-medium">
