@@ -24,18 +24,7 @@
 
 ---
 
-## 🚀 تشغيل النظام محلياً (Local Development)
-
-### 1. تشغيل خادم التطبيق (Laravel Server)
-```bash
-cd "C:\Users\samsung\.gemini\antigravity\scratch\nasser-hospital-system"
-php artisan serve
-```
-أو باستخدام مسار PHP المباشر:
-```powershell
-& "C:\xampp\php\php.exe" artisan serve
-```
-سيعمل النظام على الرابط: **`http://127.0.0.1:8000`**
+## 🚀 إعداد النظام محلياً (Local Development)
 
 ### 2. تشغيل أصول ومجمّع الواجهات (Vite)
 *الأصول مبنية وجاهزة مسبقاً في `public/build`، ولكن للتطوير المباشر:*
