@@ -1,6 +1,4 @@
-# -----------------------------------------------------------------------------
-# Stage 1: Build Frontend Assets (Vite)
-# -----------------------------------------------------------------------------
+# Stage 1: Build frontend assets
 FROM node:20-alpine AS frontend
 WORKDIR /app
 COPY package*.json ./
@@ -8,30 +6,22 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# -----------------------------------------------------------------------------
-# Stage 2: Production PHP + Nginx Environment
-# -----------------------------------------------------------------------------
-FROM php:8.2-fpm-alpine
+# Stage 2: Official PHP with Apache
+FROM php:8.2-apache
 
-# Install system dependencies & required packages
-RUN apk update && apk add --no-cache \
-    nginx \
-    supervisor \
-    curl \
+# Install system dependencies and PHP extensions
+RUN apt-get update && apt-get install -y \
     git \
     unzip \
     libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     libzip-dev \
-    icu-dev \
-    oniguruma-dev \
-    sqlite \
-    sqlite-dev \
-    envsubst
-
-# Install PHP extensions required by Laravel
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    libicu-dev \
+    libonig-dev \
+    sqlite3 \
+    libsqlite3-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
         pdo \
         pdo_sqlite \
@@ -43,48 +33,53 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         bcmath \
         gd \
         intl \
-        opcache
+        opcache \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
+
+# Configure Apache DocumentRoot to point to Laravel's public directory
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Allow .htaccess overrides in /var/www/html/public
+RUN echo '<Directory /var/www/html/public>\n\
+    Options Indexes FollowSymLinks\n\
+    AllowOverride All\n\
+    Require all granted\n\
+</Directory>' > /etc/apache2/conf-available/laravel.conf \
+    && a2enconf laravel
+
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy composer files and install production dependencies
+# Copy composer files and install PHP dependencies
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
-# Copy application source code
+# Copy full application source code
 COPY . .
 
-# Copy built frontend assets from stage 1
+# Copy built frontend assets from Stage 1
 COPY --from=frontend /app/public/build ./public/build
 
-# Finish Composer scripts
+# Finish Composer dump-autoload
 RUN composer dump-autoload --optimize
 
-# Copy configuration files
-COPY docker/nginx.conf /etc/nginx/templates/default.conf.template
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
-
-# Fix line endings (prevent CRLF issues on Windows hosts) and make executable
-RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh && chmod +x /usr/local/bin/entrypoint.sh
-
-# Ensure storage and bootstrap directories exist with proper permissions
-RUN mkdir -p /var/www/html/storage/framework/cache/data \
-             /var/www/html/storage/framework/app \
-             /var/www/html/storage/framework/sessions \
-             /var/www/html/storage/framework/views \
-             /var/www/html/storage/logs \
-             /var/www/html/bootstrap/cache \
-             /var/www/html/database \
+# Create SQLite database file and set permissions
+RUN mkdir -p /var/www/html/database /var/www/html/storage /var/www/html/bootstrap/cache \
+    && touch /var/www/html/database/database.sqlite \
     && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 
-# Environment variables for Render
-ENV PORT=8080
-EXPOSE 8080
+# Default port
+ENV PORT=80
+EXPOSE 80
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# Direct command: bind Apache to Render's dynamic $PORT, run migrations/seeders, then start Apache in foreground
+CMD sh -c "sed -i \"s/80/\${PORT:-80}/g\" /etc/apache2/ports.conf /etc/apache2/sites-available/*.conf && php artisan migrate --force --seed && apache2-foreground"
