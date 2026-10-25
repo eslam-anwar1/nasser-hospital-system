@@ -7,9 +7,9 @@
 <div class="space-y-6">
 
     <!-- Filters and Action -->
-    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <form method="GET" action="{{ route('medical-records.index') }}" class="w-full sm:w-auto flex-1 flex flex-wrap items-center gap-3">
-            <div class="relative w-full sm:w-80">
+    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <form method="GET" action="{{ route('medical-records.index') }}" class="w-full md:flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+            <div class="relative w-full sm:w-72 md:w-80">
                 <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-3 text-slate-400 text-xs"></i>
                 <input type="text" 
                        name="search" 
@@ -18,19 +18,21 @@
                        class="w-full pl-4 pr-9 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-hospital-500">
             </div>
 
-            <select name="doctor_id" class="py-2 px-3 rounded-xl border border-slate-200 text-xs text-slate-700">
-                <option value="">جميع الأطباء الفاحصين</option>
-                @foreach($doctors as $doc)
-                    <option value="{{ $doc->id }}" {{ request('doctor_id') == $doc->id ? 'selected' : '' }}>{{ $doc->name }}</option>
-                @endforeach
-            </select>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <select name="doctor_id" class="w-full sm:w-auto py-2 px-3 rounded-xl border border-slate-200 text-xs text-slate-700">
+                    <option value="">جميع الأطباء الفاحصين</option>
+                    @foreach($doctors as $doc)
+                        <option value="{{ $doc->id }}" {{ request('doctor_id') == $doc->id ? 'selected' : '' }}>{{ $doc->name }}</option>
+                    @endforeach
+                </select>
 
-            <button type="submit" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700 transition">
-                تصفية
-            </button>
+                <button type="submit" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700 transition shrink-0">
+                    تصفية
+                </button>
+            </div>
         </form>
 
-        <a href="{{ route('medical-records.create') }}" class="w-full sm:w-auto px-5 py-2.5 bg-hospital-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-hospital-700 transition flex items-center justify-center gap-2">
+        <a href="{{ route('medical-records.create') }}" class="w-full md:w-auto px-5 py-2.5 bg-hospital-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-hospital-700 transition flex items-center justify-center gap-2">
             <i class="fa-solid fa-notes-medical"></i>
             <span>إضافة كشف طبي جديد</span>
         </a>
@@ -38,46 +40,46 @@
 
     <!-- Records Table -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
             <h3 class="text-sm font-bold text-slate-800">قائمة الكشوفات والتقارير الطبية ({{ $records->total() }})</h3>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-right text-xs">
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-right text-xs min-w-[750px]">
                 <thead class="bg-slate-50/80 text-slate-500 font-bold border-b border-slate-100">
                     <tr>
-                        <th class="py-3.5 px-4">رقم التقرير</th>
-                        <th class="py-3.5 px-4">المريض</th>
-                        <th class="py-3.5 px-4">الطبيب الفاحص</th>
-                        <th class="py-3.5 px-4">القسم / العيادة</th>
-                        <th class="py-3.5 px-4">التشخيص الطبي الرئيسي</th>
-                        <th class="py-3.5 px-4">العلامات الحيوية</th>
-                        <th class="py-3.5 px-4">تاريخ الزيارة</th>
-                        <th class="py-3.5 px-4 text-center">إجراءات</th>
+                        <th class="py-3.5 px-3 sm:px-4">رقم التقرير</th>
+                        <th class="py-3.5 px-3 sm:px-4">المريض</th>
+                        <th class="py-3.5 px-3 sm:px-4">الطبيب الفاحص</th>
+                        <th class="py-3.5 px-3 sm:px-4">القسم / العيادة</th>
+                        <th class="py-3.5 px-3 sm:px-4">التشخيص الطبي الرئيسي</th>
+                        <th class="py-3.5 px-3 sm:px-4">العلامات الحيوية</th>
+                        <th class="py-3.5 px-3 sm:px-4">تاريخ الزيارة</th>
+                        <th class="py-3.5 px-3 sm:px-4 text-center">إجراءات</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($records as $rec)
                     <tr class="hover:bg-slate-50/60 transition">
-                        <td class="py-3.5 px-4 font-bold text-hospital-700">
+                        <td class="py-3.5 px-3 sm:px-4 font-bold text-hospital-700 whitespace-nowrap">
                             <span class="bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded font-mono">{{ $rec->record_number }}</span>
                         </td>
-                        <td class="py-3.5 px-4">
+                        <td class="py-3.5 px-3 sm:px-4 whitespace-nowrap">
                             <a href="{{ route('patients.show', $rec->patient) }}" class="font-bold text-slate-800 hover:text-hospital-600 block">
                                 {{ $rec->patient->full_name }}
                             </a>
                             <span class="text-[10px] text-slate-400">ملف: {{ $rec->patient->file_number }}</span>
                         </td>
-                        <td class="py-3.5 px-4 font-semibold text-slate-700">
+                        <td class="py-3.5 px-3 sm:px-4 font-semibold text-slate-700 whitespace-nowrap">
                             {{ $rec->doctor->name }}
                         </td>
-                        <td class="py-3.5 px-4 text-slate-600">
+                        <td class="py-3.5 px-3 sm:px-4 text-slate-600 whitespace-nowrap">
                             {{ $rec->clinic->name_ar ?? 'العيادة العامة' }}
                         </td>
-                        <td class="py-3.5 px-4 max-w-xs font-medium text-slate-800 truncate" title="{{ $rec->diagnosis }}">
+                        <td class="py-3.5 px-3 sm:px-4 max-w-xs font-medium text-slate-800 truncate" title="{{ $rec->diagnosis }}">
                             {{ $rec->diagnosis }}
                         </td>
-                        <td class="py-3.5 px-4 text-[11px] text-slate-500">
+                        <td class="py-3.5 px-3 sm:px-4 text-[11px] text-slate-500 whitespace-nowrap">
                             @if($rec->blood_pressure || $rec->pulse_rate)
                                 <span class="block">ضغط: {{ $rec->blood_pressure ?: '-' }}</span>
                                 <span class="block">نبض: {{ $rec->pulse_rate ?: '-' }}</span>
@@ -85,10 +87,10 @@
                                 <span>-</span>
                             @endif
                         </td>
-                        <td class="py-3.5 px-4 text-slate-600 font-mono" dir="ltr">
+                        <td class="py-3.5 px-3 sm:px-4 text-slate-600 font-mono whitespace-nowrap" dir="ltr">
                             {{ $rec->visit_date->format('Y-m-d') }}
                         </td>
-                        <td class="py-3.5 px-4 text-center">
+                        <td class="py-3.5 px-3 sm:px-4 text-center whitespace-nowrap">
                             <div class="inline-flex items-center gap-1.5">
                                 <a href="{{ route('medical-records.show', $rec) }}" title="عرض التقرير الطبي والوصفة" class="p-1.5 rounded-lg text-teal-600 hover:bg-teal-50 transition">
                                     <i class="fa-solid fa-eye"></i>
